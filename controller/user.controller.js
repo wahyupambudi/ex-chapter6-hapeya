@@ -78,7 +78,7 @@ async function Login(req, res, next) {
     }
 
     let token = jwt.sign(
-      { id: user.id, name: user.name, email: user.email },
+      { name: user.name, email: user.email },
       process.env.SECRET_KEY,
     );
     // console.log(user)
@@ -88,6 +88,70 @@ async function Login(req, res, next) {
     return;
   } catch (error) {
     next(error);
+  }
+}
+
+async function GetByPK(req, res) {
+  const { email } = req.params;
+
+  try {
+    const users = await prisma.users.findUnique({
+      where: {
+        email: email,
+      },
+    });
+
+    let resp = ResponseTemplate(users, "success to get user by id", null, 200);
+    res.json(resp);
+    return;
+  } catch (error) {
+    console.log(error);
+    let resp = ResponseTemplate(null, "internal server error", error, 500);
+    res.json(resp);
+    return;
+  }
+}
+
+async function PictureUpdate(req, res) {
+  const imageUrl = `${req.protocol}://${req.get("host")}/images/${
+    req.file.filename
+  }`;
+
+  const profilePicture = req.body;
+  const { email } = req.params;
+  const payload = {};
+
+  if (!profilePicture) {
+    let resp = ResponseTemplate(null, "bad request", null, 400);
+    res.json(resp);
+    return;
+  }
+
+  if (profilePicture) {
+    payload.profilePicture = imageUrl;
+  }
+
+  try {
+    const users = await prisma.users.update({
+      where: {
+        email: email,
+      },
+      data: payload
+    });
+
+    let resp = ResponseTemplate(
+      { data: imageUrl, profilePicture: users.profilePicture },
+      "Profile Picure has Updated",
+      null,
+      200,
+    );
+    res.json(resp);
+    return;
+  } catch (error) {
+    console.log(error);
+    let resp = ResponseTemplate(null, "internal server error", error, 500);
+    res.json(resp);
+    return;
   }
 }
 
@@ -115,4 +179,6 @@ module.exports = {
   Register,
   Login,
   whoami,
+  GetByPK,
+  PictureUpdate,
 };
