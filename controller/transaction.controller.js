@@ -6,7 +6,8 @@ const prisma = new PrismaClient();
 require("dotenv").config();
 
 async function Insert(req, res) {
-  const { userId, amount, paymentLink, isPaid } = req.body;
+  const { amount, paymentLink, isPaid } = req.body;
+  const userId=0;
 
   const outputFolder = path.join(__dirname, "../media/qr");
   const jsonData = JSON.stringify({ amount, userId });
@@ -21,7 +22,7 @@ async function Insert(req, res) {
   // console.log(nameFile);
 
   const payload = {
-    userId: parseInt(userId),
+    userId: Number(req.params.id),
     amount: parseInt(amount),
     paymentLink: qr_buffer_png,
     isPaid,
@@ -49,4 +50,31 @@ async function Insert(req, res) {
   }
 }
 
-module.exports = { Insert };
+async function GetByPK(req, res) {
+  const { userId } = req.params;
+  try {
+    const users = await prisma.users.findUnique({
+      where: {
+        id: Number(userId),
+      },
+      select: {
+        name: true,
+        email: true,
+        transaction: true,
+      },
+    });
+
+    // console.log(users)
+
+    let resp = ResponseTemplate(users, "success to get user by id", null, 200);
+    res.json(resp);
+    return;
+  } catch (error) {
+    console.log(error);
+    let resp = ResponseTemplate(null, "internal server error", error, 500);
+    res.json(resp);
+    return;
+  }
+}
+
+module.exports = { Insert, GetByPK };

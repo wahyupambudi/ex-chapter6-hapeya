@@ -3,7 +3,7 @@ const router = require("express").Router();
 const {
   Register,
   Login,
-  GetByPK,
+  // Get,
   whoami,
   PictureUpdate,
 } = require("../controller/user.controller");
@@ -16,7 +16,7 @@ const multer = require("multer")();
 router.post("/register", Register);
 router.post("/login", Login);
 router.get("/whoami", Authenticate, whoami);
-router.get("/:email", Authenticate, restrictUser, GetByPK);
+// router.get("/", Authenticate, Get);
 router.put(
   "/:email",
   Authenticate,

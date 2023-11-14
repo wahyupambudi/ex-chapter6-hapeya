@@ -5,13 +5,14 @@ const {
   // generateQr
   // Register,
   // Login,
-  // GetByPK,
+  GetByPK,
   // whoami,
   // PictureUpdate,
 } = require("../controller/transaction.controller");
-const { Authenticate, restrictUser } = require("../middleware/restrict");
+const { Authenticate, restrictUser, restrictUserTrx, restrictGetUser } = require("../middleware/restrict");
 
-router.post("/", Authenticate, Insert);
+router.post("/:id", Authenticate, restrictUserTrx, Insert);
+router.get('/:userId', Authenticate, restrictGetUser, GetByPK)
 // router.post("/qrcode", Authenticate, generateQr);
 
 

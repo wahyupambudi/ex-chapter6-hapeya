@@ -79,7 +79,7 @@ async function Login(req, res, next) {
     }
 
     let token = jwt.sign(
-      { name: user.name, email: user.email },
+      { id: user.id, name: user.name, email: user.email },
       process.env.SECRET_KEY,
     );
     // console.log(user)
@@ -92,26 +92,44 @@ async function Login(req, res, next) {
   }
 }
 
-async function GetByPK(req, res) {
-  const { email } = req.params;
+// async function Get(req, res) {
+//   const { id, name, email } = req.query;
 
-  try {
-    const users = await prisma.users.findUnique({
-      where: {
-        email: email,
-      },
-    });
+//   const payload = {};
 
-    let resp = ResponseTemplate(users, "success to get user by id", null, 200);
-    res.json(resp);
-    return;
-  } catch (error) {
-    console.log(error);
-    let resp = ResponseTemplate(null, "internal server error", error, 500);
-    res.json(resp);
-    return;
-  }
-}
+//   if (name) {
+//     payload.name = name;
+//   }
+
+//   if (email) {
+//     payload.email = email;
+//   }
+
+//   try {
+//     const page = parseInt(req.query.page) || 1; // total halaman
+//     const perPage = parseInt(req.query.perPage) || 10; // total item per halaman
+//     const skip = (page - 1) * perPage;
+//     const users = await prisma.users.findMany({
+//       skip,
+//       take: perPage,
+//       where: payload,
+//       select: {
+//         id: true,
+//         email: true,
+//         name: true,
+//       },
+//     });
+
+//     let resp = ResponseTemplate(users, "success to get user", null, 200);
+//     res.json(resp);
+//     return;
+//   } catch (error) {
+//     let resp = ResponseTemplate(null, "internal server error", error, 500);
+//     res.json(resp);
+//     return;
+//   }
+// }
+
 
 async function PictureUpdate(req, res) {
   const imageUrl = `${req.protocol}://${req.get("host")}/images/${
@@ -166,6 +184,6 @@ module.exports = {
   Register,
   Login,
   whoami,
-  GetByPK,
+  // Get,
   PictureUpdate,
 };
