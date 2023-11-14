@@ -155,20 +155,6 @@ async function PictureUpdate(req, res) {
   }
 }
 
-function MediaProcessingImage(req, res) {
-  const imageUrl = `${req.protocol}://${req.get("host")}/images/${
-    req.file.filename
-  }`;
-
-  res.status(200).json({
-    data: imageUrl,
-    message: "success",
-    status: 200,
-    error: null,
-  });
-  return;
-}
-
 function whoami(req, res) {
   let respons = ResponseTemplate({ user: req.user }, "success", null, 200);
   res.status(200).json(respons);

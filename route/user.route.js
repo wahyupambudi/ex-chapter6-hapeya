@@ -19,9 +19,9 @@ router.get("/whoami", Authenticate, whoami);
 router.get("/:email", Authenticate, restrictUser, GetByPK);
 router.put(
   "/:email",
-  storage.Image.single("profilePicture"),
   Authenticate,
   restrictUser,
+  storage.Image.single("profilePicture"),
   PictureUpdate,
 );
 // router.post("/image-single", storage.Image.single("images"), MediaProcessingImage);
