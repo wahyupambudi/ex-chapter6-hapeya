@@ -1,10 +1,11 @@
 const jwt = require("jsonwebtoken");
-const qr = require("node-qr-image");
-const imagekit = require("../lib/imagekit");
 const { ComparePassword, HashPassword } = require("../helper/passwd.helper");
 const { ResponseTemplate } = require("../helper/template.helper");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+// const qr = require("node-qr-image");
+// const imagekit = require("../lib/imagekit");
+
 require("dotenv").config();
 
 async function Register(req, res, next) {

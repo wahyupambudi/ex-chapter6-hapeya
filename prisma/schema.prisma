@@ -23,9 +23,9 @@ model users {
 
 model transaction {
   id           Int      @id @default(autoincrement())
-  userId       Int      @unique
+  userId       Int
   amount       Int
-  paymentLink  Int
+  paymentLink  String
   isPaid       Boolean  @default(false)
   users        users    @relation(fields: [userId], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
