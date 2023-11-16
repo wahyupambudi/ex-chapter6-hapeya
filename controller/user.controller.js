@@ -4,12 +4,50 @@ const { ResponseTemplate } = require("../helper/template.helper");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 // const qr = require("node-qr-image");
-// const imagekit = require("../lib/imagekit");
+const imagekit = require("../lib/imagekit");
 
 require("dotenv").config();
 
+// async function Get(req, res) {
+//   const { id, name, email } = req.query;
+
+//   const payload = {};
+
+//   if (name) {
+//     payload.name = name;
+//   }
+
+//   if (email) {
+//     payload.email = email;
+//   }
+
+//   try {
+//     const page = parseInt(req.query.page) || 1; // total halaman
+//     const perPage = parseInt(req.query.perPage) || 10; // total item per halaman
+//     const skip = (page - 1) * perPage;
+//     const users = await prisma.users.findMany({
+//       skip,
+//       take: perPage,
+//       where: payload,
+//       select: {
+//         id: true,
+//         email: true,
+//         name: true,
+//       },
+//     });
+
+//     let resp = ResponseTemplate(users, "success to get user", null, 200);
+//     res.json(resp);
+//     return;
+//   } catch (error) {
+//     let resp = ResponseTemplate(null, "internal server error", error, 500);
+//     res.json(resp);
+//     return;
+//   }
+// }
+
 async function Register(req, res, next) {
-  const { name, email, password, address, profilePicture } = req.body;
+  const { name, email, password, address, profilePicture, memberId } = req.body;
 
   const hashPass = await HashPassword(password);
 
@@ -33,6 +71,7 @@ async function Register(req, res, next) {
         password: hashPass,
         address,
         profilePicture,
+        memberId,
       },
     });
 
@@ -79,7 +118,12 @@ async function Login(req, res, next) {
     }
 
     let token = jwt.sign(
-      { id: user.id, name: user.name, email: user.email },
+      {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        memberId: user.memberId,
+      },
       process.env.SECRET_KEY,
     );
     // console.log(user)
@@ -92,49 +136,10 @@ async function Login(req, res, next) {
   }
 }
 
-// async function Get(req, res) {
-//   const { id, name, email } = req.query;
-
-//   const payload = {};
-
-//   if (name) {
-//     payload.name = name;
-//   }
-
-//   if (email) {
-//     payload.email = email;
-//   }
-
-//   try {
-//     const page = parseInt(req.query.page) || 1; // total halaman
-//     const perPage = parseInt(req.query.perPage) || 10; // total item per halaman
-//     const skip = (page - 1) * perPage;
-//     const users = await prisma.users.findMany({
-//       skip,
-//       take: perPage,
-//       where: payload,
-//       select: {
-//         id: true,
-//         email: true,
-//         name: true,
-//       },
-//     });
-
-//     let resp = ResponseTemplate(users, "success to get user", null, 200);
-//     res.json(resp);
-//     return;
-//   } catch (error) {
-//     let resp = ResponseTemplate(null, "internal server error", error, 500);
-//     res.json(resp);
-//     return;
-//   }
-// }
-
-
 async function PictureUpdate(req, res) {
-  const imageUrl = `${req.protocol}://${req.get("host")}/images/${
-    req.file.filename
-  }`;
+  // const imageUrl = `${req.protocol}://${req.get("host")}/images/${
+  //   req.file.filename
+  // }`;
 
   const profilePicture = req.body;
   const { email } = req.params;
@@ -146,8 +151,17 @@ async function PictureUpdate(req, res) {
     return;
   }
 
+  // image kit
+  const fileString = req.file.buffer.toString("base64");
+
+  const uploadFile = await imagekit.upload({
+    fileName: req.file.originalname,
+    file: fileString,
+  });
+
+
   if (profilePicture) {
-    payload.profilePicture = imageUrl;
+    payload.profilePicture = uploadFile.url;
   }
 
   try {
@@ -155,11 +169,11 @@ async function PictureUpdate(req, res) {
       where: {
         email: email,
       },
-      data: payload
+      data: payload,
     });
 
     let resp = ResponseTemplate(
-      { data: imageUrl, profilePicture: users.profilePicture },
+      { data: uploadFile.url, profilePicture: users.profilePicture },
       "Profile Picure has Updated",
       null,
       200,

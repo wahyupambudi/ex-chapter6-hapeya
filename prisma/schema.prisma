@@ -10,13 +10,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum roles {
+  member
+  admin
+}
 
 model users {
-  id          Int      @id @default(autoincrement())
-  name        String
-  email       String   @unique
-  password    String 
-  address     String
+  id             Int      @id @default(autoincrement())
+  name           String
+  email          String   @unique
+  password       String 
+  address        String
+  memberId       roles     @default(member)
   profilePicture String?
   transaction transaction[]
 }

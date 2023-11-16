@@ -65,8 +65,8 @@ async function restrictUserTrx(req, res, next) {
         const idFromToken = user.id;
         const idFromRequest = Number(req.params.id);
 
-        // console.log(typeof(idFromToken))
-        // console.log(typeof(idFromRequest))
+        // console.log(idFromToken)
+        // console.log(idFromRequest)
 
         if (idFromToken !== idFromRequest) {
             let respons = ResponseTemplate(
